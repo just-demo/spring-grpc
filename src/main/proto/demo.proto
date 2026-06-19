@@ -9,7 +9,7 @@ service DemoService {
   rpc Unary (DemoRequest) returns (DemoResponse);
   rpc ServerStream (DemoRequest) returns (stream DemoResponse);
   rpc ClientStream (stream DemoRequest) returns (DemoResponse);
-  rpc BidiStream (stream DemoRequest) returns (stream DemoResponse);
+  rpc BidirectionalStream (stream DemoRequest) returns (stream DemoResponse);
 }
 
 message DemoRequest {

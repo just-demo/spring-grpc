@@ -14,7 +14,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.grpc.client.GrpcChannelFactory;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -27,16 +26,16 @@ import static java.util.stream.IntStream.rangeClosed;
 @SuppressWarnings("LoggingSimilarMessage")
 public class DemoClient implements CommandLineRunner {
 
-    private final GrpcChannelFactory channels;
+    private final Channel channel;
 
     public static void main(String[] args) {
-        System.exit(SpringApplication.exit(new SpringApplicationBuilder(DemoClient.class).run(args)));
+        System.exit(SpringApplication.exit(new SpringApplicationBuilder(DemoClient.class)
+                .profiles("client")
+                .run(args)));
     }
 
     @Override
     public void run(String... args) throws InterruptedException {
-        Channel channel = channels.createChannel("localhost:9090");
-
         log.info("Unary...");
         runUnary(channel);
         log.info("Server streaming...");

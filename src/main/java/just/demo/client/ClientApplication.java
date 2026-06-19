@@ -25,13 +25,13 @@ import static java.util.stream.IntStream.rangeClosed;
 @RequiredArgsConstructor
 @SuppressWarnings("LoggingSimilarMessage")
 @ImportGrpcClients({DemoServiceBlockingStub.class, DemoServiceStub.class})
-public class DemoClient implements CommandLineRunner {
+public class ClientApplication implements CommandLineRunner {
 
     private final DemoServiceBlockingStub blockingStub;
     private final DemoServiceStub asyncStub;
 
     public static void main(String[] args) {
-        System.exit(SpringApplication.exit(new SpringApplicationBuilder(DemoClient.class)
+        System.exit(SpringApplication.exit(new SpringApplicationBuilder(ClientApplication.class)
                 .profiles("client")
                 .run(args)));
     }

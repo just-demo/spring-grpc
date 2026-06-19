@@ -1,4 +1,4 @@
-package just.demo.service;
+package just.demo.server;
 
 import io.grpc.stub.StreamObserver;
 import java.util.concurrent.atomic.AtomicInteger;

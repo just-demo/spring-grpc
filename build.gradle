@@ -36,10 +36,6 @@ protobuf {
 	}
 }
 
-springBoot {
-	mainClass = 'just.demo.SpringGrpcApplication'
-}
-
 tasks.named('test') {
 	useJUnitPlatform()
 }

@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package just.demo.proto;
+
+option java_multiple_files = true;
+option java_package = "just.demo.proto";
+
+service DemoService {
+  rpc Unary (DemoRequest) returns (DemoResponse);
+  rpc ServerStream (DemoRequest) returns (stream DemoResponse);
+  rpc ClientStream (stream DemoRequest) returns (DemoResponse);
+  rpc BidiStream (stream DemoRequest) returns (stream DemoResponse);
+}
+
+message DemoRequest {
+  string text = 1;
+}
+
+message DemoResponse {
+  string text = 1;
+}

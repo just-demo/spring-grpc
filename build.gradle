@@ -26,6 +26,16 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
+protobuf {
+	protoc {
+		artifact = "com.google.protobuf:protoc:${dependencyManagement.importedProperties['protobuf-java.version']}"
+	}
+}
+
+springBoot {
+	mainClass = 'just.demo.SpringGrpcApplication'
+}
+
 tasks.named('test') {
 	useJUnitPlatform()
 }

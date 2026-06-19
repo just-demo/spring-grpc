@@ -9,7 +9,6 @@ import just.demo.proto.DemoServiceGrpc.DemoServiceBlockingStub;
 import just.demo.proto.DemoServiceGrpc.DemoServiceStub;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
@@ -27,9 +26,9 @@ import static java.util.stream.IntStream.rangeClosed;
 public class ClientApplication {
 
     public static void main(String[] args) {
-        System.exit(SpringApplication.exit(new SpringApplicationBuilder(ClientApplication.class)
+        new SpringApplicationBuilder(ClientApplication.class)
                 .profiles("client")
-                .run(args)));
+                .run(args);
     }
 
     @Bean

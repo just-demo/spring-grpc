@@ -1,12 +1,11 @@
 package just.demo.client;
 
-import io.grpc.Channel;
 import io.grpc.stub.ClientCallStreamObserver;
 import io.grpc.stub.ClientResponseObserver;
 import io.grpc.stub.StreamObserver;
 import just.demo.proto.DemoRequest;
 import just.demo.proto.DemoResponse;
-import just.demo.proto.DemoServiceGrpc;
+import just.demo.proto.DemoServiceGrpc.DemoServiceBlockingStub;
 import just.demo.proto.DemoServiceGrpc.DemoServiceStub;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +13,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.grpc.client.ImportGrpcClients;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -21,12 +21,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static java.util.stream.IntStream.rangeClosed;
 
 @Slf4j
-@SpringBootApplication
 @RequiredArgsConstructor
+@SpringBootApplication
+@ImportGrpcClients(target = "demo", types = {DemoServiceBlockingStub.class, DemoServiceStub.class})
 @SuppressWarnings("LoggingSimilarMessage")
 public class DemoClient implements CommandLineRunner {
 
-    private final Channel channel;
+    private final DemoServiceBlockingStub blockingStub;
+    private final DemoServiceStub asyncStub;
 
     public static void main(String[] args) {
         System.exit(SpringApplication.exit(new SpringApplicationBuilder(DemoClient.class)
@@ -37,24 +39,22 @@ public class DemoClient implements CommandLineRunner {
     @Override
     public void run(String... args) throws InterruptedException {
         log.info("Unary...");
-        runUnary(channel);
+        runUnary(blockingStub);
         log.info("Server streaming...");
-        runServerStream(channel);
+        runServerStream(asyncStub);
         log.info("Client streaming...");
-        runClientStream(channel);
+        runClientStream(asyncStub);
         log.info("Bidirectional streaming...");
-        runBidirectionalStream(channel);
+        runBidirectionalStream(asyncStub);
     }
 
-    private static void runUnary(Channel channel) {
-        DemoResponse response = DemoServiceGrpc.newBlockingStub(channel)
-                .unary(DemoRequest.newBuilder().setText("Demo request").build());
+    private static void runUnary(DemoServiceBlockingStub stub) {
+        DemoResponse response = stub.unary(DemoRequest.newBuilder().setText("Demo request").build());
         log.info("response: {}", response.getText());
     }
 
-    private static void runServerStream(Channel channel) throws InterruptedException {
+    private static void runServerStream(DemoServiceStub stub) throws InterruptedException {
         CountDownLatch done = new CountDownLatch(1);
-        DemoServiceStub stub = DemoServiceGrpc.newStub(channel);
         stub.serverStream(DemoRequest.newBuilder().setText("Demo request").build(), new StreamObserver<>() {
             @Override
             public void onNext(DemoResponse response) {
@@ -76,9 +76,8 @@ public class DemoClient implements CommandLineRunner {
         done.await();
     }
 
-    private static void runClientStream(Channel channel) throws InterruptedException {
+    private static void runClientStream(DemoServiceStub stub) throws InterruptedException {
         CountDownLatch done = new CountDownLatch(1);
-        DemoServiceStub stub = DemoServiceGrpc.newStub(channel);
         StreamObserver<DemoRequest> requestObserver = stub.clientStream(new StreamObserver<>() {
             @Override
             public void onNext(DemoResponse response) {
@@ -97,16 +96,14 @@ public class DemoClient implements CommandLineRunner {
                 done.countDown();
             }
         });
-        rangeClosed(1, 10).forEach(counter -> {
-            requestObserver.onNext(DemoRequest.newBuilder().setText("Demo request " + counter).build());
-        });
+        rangeClosed(1, 10).forEach(counter ->
+                requestObserver.onNext(DemoRequest.newBuilder().setText("Demo request " + counter).build()));
         requestObserver.onCompleted();
         done.await();
     }
 
-    private static void runBidirectionalStream(Channel channel) throws InterruptedException {
+    private static void runBidirectionalStream(DemoServiceStub stub) throws InterruptedException {
         CountDownLatch done = new CountDownLatch(1);
-        DemoServiceStub stub = DemoServiceGrpc.newStub(channel);
         AtomicInteger counter = new AtomicInteger();
         stub.bidirectionalStream(new ClientResponseObserver<DemoRequest, DemoResponse>() {
             private ClientCallStreamObserver<DemoRequest> requestStream;

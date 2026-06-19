@@ -21,10 +21,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static java.util.stream.IntStream.rangeClosed;
 
 @Slf4j
-@RequiredArgsConstructor
 @SpringBootApplication
-@ImportGrpcClients(target = "demo", types = {DemoServiceBlockingStub.class, DemoServiceStub.class})
+@RequiredArgsConstructor
 @SuppressWarnings("LoggingSimilarMessage")
+@ImportGrpcClients({DemoServiceBlockingStub.class, DemoServiceStub.class})
 public class DemoClient implements CommandLineRunner {
 
     private final DemoServiceBlockingStub blockingStub;
